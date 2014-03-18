@@ -39,8 +39,8 @@ If you know Go's `text/template` language, then you can probably use jgtr. In br
 ## Todo
  - add more functions. `text/template` supports introducing more functions into a template via [`Funcs`](http://golang.org/pkg/text/template/#Template.Funcs). Some obvious things that come to mind are date and time manipulation functions.
  - add more data file types. While I personally prefer JSON, there are plenty of other encodings that are isomorphic to it and can represent the same data structures. As long as you can unmarshal it into an `interface{}`, it can probably be dropped into this code in place of JSON. [TOML](https://github.com/BurntSushi/toml) and [YAML](https://github.com/go-yaml/yaml) come to mind.
-- add other general-purpose template languages. There aren't a lot of pure Go implementations, but I am looking at [mustache](https://github.com/hoisie/mustache). If you can think of any others, please open an issue or, better yet, add it and submit a pull request.
-- add a flag to switch to `html/template` for security and proper escaping. I don't personally care much about this use case, but it should be a straightforward addition if I feel like it.
+ - add other general-purpose template languages. There aren't a lot of pure Go implementations, but I am looking at [mustache](https://github.com/hoisie/mustache). If you can think of any others, please open an issue or, better yet, add it and submit a pull request.
+ - add a flag to switch to `html/template` for security and proper escaping. I don't personally care much about this use case, but it should be a straightforward addition if I feel like it.
 
 ## License
 MIT/expat, see [LICENSE.md](LICENSE.md).
