@@ -32,6 +32,7 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
+		defer outFile.Close()
 	}
 
 	err = tmpl.Execute(outFile, data)
@@ -52,6 +53,7 @@ func loadJSONData(path string) (ret interface{}, err error) {
 		if err != nil {
 			return
 		}
+		defer file.Close()
 	}
 
 	decoder := json.NewDecoder(file)
@@ -71,6 +73,7 @@ func loadGoTemplate(path string) (tmpl *template.Template, err error) {
 		if err != nil {
 			return
 		}
+		defer file.Close()
 	}
 
 	rawTmpl, err := ioutil.ReadAll(file)
