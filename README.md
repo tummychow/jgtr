@@ -36,10 +36,34 @@ Pants color is red
 
 If you know Go's `text/template` language, then you can probably use jgtr. In brief, the top-level JSON value is exposed as `{{ . }}`. If that value is a JSON object, you can access its keys by their names, as shown in the above example. If that value is a JSON array, you can loop over its contents using the `range` action. Refer to the documentation for more details on how to use the templating language.
 
+jgtr exposes some standard Go functions that you can use in your templates. Take a look at `tmplFuncs` in `jgtr.go` for the full list. As an example, jgtr exposes Go's `time.Parse` under the name `timeParse`. You can this to generate a Go `time.Time` object and invoke standard functions on it.
+```
+"2013-04-30"
+```
+```
+{{ with timeParse "2006-01-02" . }}
+The year is {{ .Year }}
+The month is {{ .Month }}
+The day is {{ .Day }}
+Out of 365 days, we're at day number {{ .YearDay }}
+All in all, the day is ISO8601 {{ .Format "2006-01-02T15:04:05Z07:00" }}
+{{ end }}
+```
+will produce
+```
+
+The year is 2013
+The month is April
+The day is 30
+Out of 365 days, we're at day number 120
+All in all, the day is ISO8601 2013-04-30T00:00:00Z
+
+```
+Note the empty lines in the output. Those are from the `with` and `end` templates. Those templates evaluate to the empty string, so we only use them for their side effects. Since I put them on their own lines (for readability), they leave behind empty lines when rendered.
+
 ## Todo
- - add more functions. `text/template` supports introducing more functions into a template via [`Funcs`](http://golang.org/pkg/text/template/#Template.Funcs). Some obvious things that come to mind are date and time manipulation functions.
+ - add more functions. `text/template` supports introducing more functions into a template via [`Funcs`](http://golang.org/pkg/text/template/#Template.Funcs). Feel free to submit issues or pull requests for more functions.
  - add more data file types. While I personally prefer JSON, there are plenty of other encodings that are isomorphic to it and can represent the same data structures. As long as you can unmarshal it into an `interface{}`, it can probably be dropped into this code in place of JSON. [TOML](https://github.com/BurntSushi/toml) and [YAML](https://github.com/go-yaml/yaml) come to mind.
- - add other general-purpose template languages. There aren't a lot of pure Go implementations, but I am looking at [mustache](https://github.com/hoisie/mustache). If you can think of any others, please open an issue or, better yet, add it and submit a pull request.
  - add a flag to switch to `html/template` for security and proper escaping. I don't personally care much about this use case, but it should be a straightforward addition if I feel like it.
 
 ## License

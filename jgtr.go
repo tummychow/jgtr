@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"os"
 	"text/template"
+	"time"
 )
 
 const helpStr = `    jgtr - JSON Go Template Renderer
@@ -39,7 +40,11 @@ OPTIONS:
     -V, --version
         Display jgtr version.`
 
-const versionStr = `0.1.0`
+const versionStr = `0.2.0`
+
+var tmplFuncs = template.FuncMap{
+	"timeParse": time.Parse,
+}
 
 func main() {
 	help := flag.BoolP("help", "h", false, "show help")
@@ -121,7 +126,8 @@ func loadGoTemplate(path string) (tmpl *template.Template, err error) {
 	// and associates them with the parent template
 	// this creates some confusing behavior in Template.Parse
 	// see http://stackoverflow.com/questions/11805356/text-template-issue-parse-vs-parsefiles
-	tmpl, err = template.New("root").Parse(string(rawTmpl))
+	// also note: functions have to be added before the template is parsed
+	tmpl, err = template.New("root").Funcs(tmplFuncs).Parse(string(rawTmpl))
 	return // again, whether err==nil or not, this is finished
 }
 
