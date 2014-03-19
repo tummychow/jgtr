@@ -74,16 +74,11 @@ func main() {
 		panic(err)
 	}
 
-	var outFile *os.File
-	if *outPath == "-" {
-		outFile = os.Stdout
-	} else {
-		outFile, err = os.Create(*outPath)
-		if err != nil {
-			panic(err)
-		}
-		defer outFile.Close()
+	outFile, err := createStream(*outPath)
+	if err != nil {
+		panic(err)
 	}
+	defer closeStream(outFile)
 
 	err = tmpl.Execute(outFile, data)
 	if err != nil {
@@ -95,16 +90,11 @@ func main() {
 // and returns the result as an interface{}. If the path is "-", then data will
 // be acquired from os.Stdin.
 func loadJSONData(path string) (ret interface{}, err error) {
-	var file *os.File
-	if path == "-" {
-		file = os.Stdin
-	} else {
-		file, err = os.Open(path)
-		if err != nil {
-			return
-		}
-		defer file.Close()
+	file, err := openStream(path)
+	if err != nil {
+		return
 	}
+	defer closeStream(file)
 
 	decoder := json.NewDecoder(file)
 	err = decoder.Decode(&ret)
@@ -115,16 +105,11 @@ func loadJSONData(path string) (ret interface{}, err error) {
 // The file contents are parsed into a top-level template with the name "root".
 // If the path is "-", then the template will be parsed from os.Stdin.
 func loadGoTemplate(path string) (tmpl *template.Template, err error) {
-	var file *os.File
-	if path == "-" {
-		file = os.Stdin
-	} else {
-		file, err = os.Open(path)
-		if err != nil {
-			return
-		}
-		defer file.Close()
+	file, err := openStream(path)
+	if err != nil {
+		return
 	}
+	defer closeStream(file)
 
 	rawTmpl, err := ioutil.ReadAll(file)
 	if err != nil {
@@ -138,4 +123,35 @@ func loadGoTemplate(path string) (tmpl *template.Template, err error) {
 	// see http://stackoverflow.com/questions/11805356/text-template-issue-parse-vs-parsefiles
 	tmpl, err = template.New("root").Parse(string(rawTmpl))
 	return // again, whether err==nil or not, this is finished
+}
+
+// openStream behaves like os.Open, except that if the path is "-", then it
+// simply returns os.Stdin.
+func openStream(path string) (file *os.File, err error) {
+	if path == "-" {
+		file = os.Stdin
+	} else {
+		file, err = os.Open(path)
+	}
+	return
+}
+
+// createStream behaves like os.Create, except that if the path is "-", then it
+// simply returns os.Stdout.
+func createStream(path string) (file *os.File, err error) {
+	if path == "-" {
+		file = os.Stdout
+	} else {
+		file, err = os.Create(path)
+	}
+	return
+}
+
+// closeStream behaves like file.Close, except that if the file is os.Stdin or
+// os.Stdout, it does nothing.
+func closeStream(file *os.File) (err error) {
+	if file == os.Stdout || file == os.Stdin {
+		return
+	}
+	return file.Close()
 }
