@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"os"
 	"text/template"
-	"time"
 )
 
 const helpStr = `    jgtr - JSON Go Template Renderer
@@ -41,10 +40,6 @@ OPTIONS:
         Display jgtr version.`
 
 const versionStr = `0.2.0`
-
-var tmplFuncs = template.FuncMap{
-	"timeParse": time.Parse,
-}
 
 func main() {
 	help := flag.BoolP("help", "h", false, "show help")

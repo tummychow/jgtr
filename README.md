@@ -36,7 +36,7 @@ Pants color is red
 
 If you know Go's `text/template` language, then you can probably use jgtr. In brief, the top-level JSON value is exposed as `{{ . }}`. If that value is a JSON object, you can access its keys by their names, as shown in the above example. If that value is a JSON array, you can loop over its contents using the `range` action. Refer to the documentation for more details on how to use the templating language.
 
-jgtr exposes some standard Go functions that you can use in your templates. Take a look at `tmplFuncs` in `jgtr.go` for the full list. As an example, jgtr exposes Go's `time.Parse` under the name `timeParse`. You can this to generate a Go `time.Time` object and invoke standard functions on it.
+jgtr exposes some standard Go functions that you can use in your templates. Take a look at [`funcs.go`](funcs.go) for the full list. As an example, jgtr exposes Go's `time.Parse` under the name `timeParse`. You can this to generate a Go `time.Time` object and invoke standard functions on it.
 ```
 "2013-04-30"
 ```
