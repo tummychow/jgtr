@@ -2,6 +2,7 @@
 
 *.json text
 *.yaml text
+*.yml text
 *.toml text
 
 *.template text

@@ -5,6 +5,7 @@ import (
 	flag "github.com/ogier/pflag"
 	"io/ioutil"
 	"os"
+	"strings"
 	"text/template"
 )
 
@@ -15,17 +16,20 @@ USAGE:
 
     jgtr consumes a data file and a template file written in Go's text/template
     language. The values available in the data file are then used to render the
-    template file and generate output. The data file is JSON by default, but a
-    format can be specified via options.
+    template file and generate output.
 
     By default, jgtr reads the data and template from stdin, and writes output
     to stdout. Note that data and template cannot both come from stdin - at
     least one of the two must be specified via an option.
 
+    jgtr can consume data from JSON, YAML 1.1 or TOML v0.2.0. You can specify
+    which type to use via an option. If no such option is given, jgtr attempts
+    to guess from the extension of the data file (if any). If the format is
+    still ambiguous, jgtr uses JSON as the default.
+
 OPTIONS:
     -d FILE, --data=FILE
-        Read data data from FILE. Specify "-" (the default) to use stdin. The
-        data is expected to be JSON, if no format is specified.
+        Read data data from FILE. Specify "-" (the default) to use stdin.
 
     -t FILE, --template=FILE
         Read template from FILE. Specify "-" (the default) to use stdin.
@@ -35,7 +39,7 @@ OPTIONS:
         stdout.
 
     -j, --json
-    	Specify the data format as JSON. This is used by default.
+    	Specify the data format as JSON (default).
 
     -y, --yaml
     	Specify the data format as YAML.
@@ -49,7 +53,7 @@ OPTIONS:
     -V, --version
         Display jgtr version.`
 
-const versionStr = `0.4.0`
+const versionStr = `0.5.0`
 
 func main() {
 	help := flag.BoolP("help", "h", false, "show help")
@@ -59,7 +63,7 @@ func main() {
 	tmplPath := flag.StringP("template", "t", "-", "Go template file")
 	outPath := flag.StringP("output", "o", "-", "output file")
 
-	jsonFlag := flag.BoolP("json", "j", true, "interpret data as JSON")
+	jsonFlag := flag.BoolP("json", "j", false, "interpret data as JSON")
 	yamlFlag := flag.BoolP("yaml", "y", false, "interpret data as YAML")
 	tomlFlag := flag.BoolP("toml", "T", false, "interpret data as TOML")
 
@@ -81,26 +85,21 @@ func main() {
 
 	var data interface{} = nil
 	var err error = nil
-	if *yamlFlag {
+	if *yamlFlag { // check the flags first
 		data, err = loadYAMLData(*dataPath)
-		if err != nil {
-			panic(err)
-		}
 	} else if *tomlFlag {
 		data, err = loadTOMLData(*dataPath)
-		if err != nil {
-			panic(err)
-		}
 	} else if *jsonFlag {
-		// json is the default so it must be last in the list, since its
-		// flag is true by default and would override the other formats
 		data, err = loadJSONData(*dataPath)
-		if err != nil {
-			panic(err)
-		}
-	} else {
-		println("Data file has no type")
-		os.Exit(1)
+	} else if strings.HasSuffix(*dataPath, ".yaml") || strings.HasSuffix(*dataPath, ".yml") { // no flag? check the extension
+		data, err = loadYAMLData(*dataPath)
+	} else if strings.HasSuffix(*dataPath, ".toml") {
+		data, err = loadTOMLData(*dataPath)
+	} else { // default case: json
+		data, err = loadJSONData(*dataPath)
+	}
+	if err != nil {
+		panic(err)
 	}
 
 	tmpl, err := loadGoTemplate(*tmplPath)
