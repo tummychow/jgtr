@@ -67,31 +67,7 @@ We could get the same output by substituting them for `test.json`. jgtr would gu
 
 jgtr uses Go's `text/template` as its template language. If you know that, then you can probably use jgtr. In brief, the top-level value is exposed as `{{ . }}`. If that value is a map, you can access its keys by their names, as shown in the above example. (Note: *Everything* in TOML is a map; there are no top-level values that have no keys.) If that value is an array, you can loop over its contents using the `range` action. Refer to the documentation for more details on how to use the templating language.
 
-`text/template` allows the invocation of Go functions in the template, if the renderer has exposed them. The full list of functions enabled by jgtr is in [`funcs.go`](funcs.go). As an example, jgtr exposes Go's `time.Parse` under the name `timeParse`. You can this to generate a Go `time.Time` object from an arbitrary string, and you can call standard methods on that object.
-
-```
-{
-    "today": "2013-04-30"
-}
-```
-
-```
-{{ with timeParse "2006-01-02" .today }}The year is {{ .Year }}
-The month is {{ .Month }}
-The day is {{ .Day }}
-Out of 365 days, we're at day number {{ .YearDay }}
-All in all, the day is ISO8601 {{ .Format "2006-01-02T15:04:05Z07:00" }}{{ end }}
-```
-
-will produce
-
-```
-The year is 2013
-The month is April
-The day is 30
-Out of 365 days, we're at day number 120
-All in all, the day is ISO8601 2013-04-30T00:00:00Z
-```
+You can use certain Go functions in your templates. More details on jgtr's use of this feature can be found in [`funcs.md`](funcs.md).
 
 ## Todo
 
