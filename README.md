@@ -41,9 +41,18 @@ If you had a YAML file like this:
 sweater: blue
 pants: red
 ```
-Then you could use the -y flag to specify that the data is YAML, and do this to get the same output.
+Then you could use the `-y` flag to specify that the data is YAML, and do this to get the same output.
 ```
 jgtr -d test.yaml -y < test.template > test.txt
+```
+Prefer TOML? jgtr can handle that too. Given this TOML file:
+```
+sweater = "blue"
+pants = "red"
+```
+You could get the same output, using the `-T` flag for TOML. Note the capital letter.
+```
+jgtr -d test.toml -T < test.template > test.txt
 ```
 
 ## Templates
@@ -77,7 +86,7 @@ Note the empty lines in the output. Those are from the `with` and `end` template
 
 ## Todo
  - add more functions. `text/template` supports introducing more functions into a template via [`Funcs`](http://golang.org/pkg/text/template/#Template.Funcs). Feel free to submit issues or pull requests for more functions.
- - I added YAML, TOML should be coming soon.
+ - Can't think of any more obvious markup languages to add, but open an issue/pull request if you got one.
  - add a flag to switch to `html/template` for security and proper escaping. I don't personally care much about this use case, but it should be a straightforward addition if I feel like it.
 
 ## License

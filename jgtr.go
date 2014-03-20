@@ -40,13 +40,16 @@ OPTIONS:
     -y, --yaml
     	Specify the data format as YAML.
 
+    -T, --toml
+    	Specify the data format as TOML.
+
     -h, --help
         Display this help.
 
     -V, --version
         Display jgtr version.`
 
-const versionStr = `0.3.0`
+const versionStr = `0.4.0`
 
 func main() {
 	help := flag.BoolP("help", "h", false, "show help")
@@ -58,6 +61,7 @@ func main() {
 
 	jsonFlag := flag.BoolP("json", "j", true, "interpret data as JSON")
 	yamlFlag := flag.BoolP("yaml", "y", false, "interpret data as YAML")
+	tomlFlag := flag.BoolP("toml", "T", false, "interpret data as TOML")
 
 	flag.Parse()
 
@@ -79,6 +83,11 @@ func main() {
 	var err error = nil
 	if *yamlFlag {
 		data, err = loadYAMLData(*dataPath)
+		if err != nil {
+			panic(err)
+		}
+	} else if *tomlFlag {
+		data, err = loadTOMLData(*dataPath)
 		if err != nil {
 			panic(err)
 		}
