@@ -1,3 +1,6 @@
 *.go text
+
 *.json text
+*.yaml text
+
 *.template text

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	flag "github.com/ogier/pflag"
 	"io/ioutil"
@@ -14,17 +13,19 @@ const helpStr = `    jgtr - JSON Go Template Renderer
 USAGE:
     jgtr [OPTIONS]
 
-    jgtr consumes a JSON-encoded data file and a template file written in Go's
-    text/template language. The values available in the data file are then used
-    to render the template file and generate output.
+    jgtr consumes a data file and a template file written in Go's text/template
+    language. The values available in the data file are then used to render the
+    template file and generate output. The data file is JSON by default, but a
+    format can be specified via options.
 
     By default, jgtr reads the data and template from stdin, and writes output
     to stdout. Note that data and template cannot both come from stdin - at
     least one of the two must be specified via an option.
 
 OPTIONS:
-    -j FILE, --json=FILE
-        Read JSON data from FILE. Specify "-" (the default) to use stdin.
+    -d FILE, --data=FILE
+        Read data data from FILE. Specify "-" (the default) to use stdin. The
+        data is expected to be JSON, if no format is specified.
 
     -t FILE, --template=FILE
         Read template from FILE. Specify "-" (the default) to use stdin.
@@ -33,21 +34,30 @@ OPTIONS:
         Write rendered template to FILE. Specify "-" (the default) to use
         stdout.
 
+    -j, --json
+    	Specify the data format as JSON. This is used by default.
+
+    -y, --yaml
+    	Specify the data format as YAML.
+
     -h, --help
         Display this help.
 
     -V, --version
         Display jgtr version.`
 
-const versionStr = `0.2.0`
+const versionStr = `0.3.0`
 
 func main() {
 	help := flag.BoolP("help", "h", false, "show help")
 	version := flag.BoolP("version", "V", false, "show version")
 
-	dataPath := flag.StringP("json", "j", "-", "JSON data file")
+	dataPath := flag.StringP("data", "d", "-", "data file (JSON by default)")
 	tmplPath := flag.StringP("template", "t", "-", "Go template file")
 	outPath := flag.StringP("output", "o", "-", "output file")
+
+	jsonFlag := flag.BoolP("json", "j", true, "interpret data as JSON")
+	yamlFlag := flag.BoolP("yaml", "y", false, "interpret data as YAML")
 
 	flag.Parse()
 
@@ -65,10 +75,25 @@ func main() {
 		os.Exit(1)
 	}
 
-	data, err := loadJSONData(*dataPath)
-	if err != nil {
-		panic(err)
+	var data interface{} = nil
+	var err error = nil
+	if *yamlFlag {
+		data, err = loadYAMLData(*dataPath)
+		if err != nil {
+			panic(err)
+		}
+	} else if *jsonFlag {
+		// json is the default so it must be last in the list, since its
+		// flag is true by default and would override the other formats
+		data, err = loadJSONData(*dataPath)
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		println("Data file has no type")
+		os.Exit(1)
 	}
+
 	tmpl, err := loadGoTemplate(*tmplPath)
 	if err != nil {
 		panic(err)
@@ -84,21 +109,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-}
-
-// loadJSONData unmarshals JSON-encoded data from the file specified by path,
-// and returns the result as an interface{}. If the path is "-", then data will
-// be acquired from os.Stdin.
-func loadJSONData(path string) (ret interface{}, err error) {
-	file, err := openStream(path)
-	if err != nil {
-		return
-	}
-	defer closeStream(file)
-
-	decoder := json.NewDecoder(file)
-	err = decoder.Decode(&ret)
-	return // whether err==nil or not, our work is done
 }
 
 // loadGoTemplate parses a Go text template from the file specified by path.
