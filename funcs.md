@@ -98,3 +98,11 @@ First, we have to assign the list to a variable name. The list is the top-level 
 The assignment to `$arr` is required as well. Inside the `range` action, the context (ie the value of the dot) is equal to the current element of the iteration. We lose visibility of the list that contains the elements, unless we bind a name to it first.
 
 Overall, I would rate this solution as "ugly" out of 10, but it gets the job done. This is the second idea I've come up with to solve this problem (yes, the first idea was actually worse than this one, if you can believe it). If you have a better idea, I definitely want to hear it, so send me a pull request.
+
+## stringSplit, stringFields and stringJoin
+
+These are aliases for some Go standard functions from the [`strings`](http://golang.org/pkg/strings/) package: [`Split`](http://golang.org/pkg/strings/#Split), [`Fields`](http://golang.org/pkg/strings/#Fields) and [`Join`](http://golang.org/pkg/strings/#Join). They're useful if you have a string that needs to be broken into pieces, or you have a bunch of pieces that need to be united.
+
+## stringUpper, stringLower and stringTitle
+
+Some more standard aliases: [`ToUpper`](http://golang.org/pkg/strings/#ToUpper), [`ToLower`](http://golang.org/pkg/strings/#ToLower) and [`ToTitle`](http://golang.org/pkg/strings/#ToTitle). They transform strings into other cases.
