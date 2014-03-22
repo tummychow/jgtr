@@ -53,7 +53,7 @@ OPTIONS:
     -V, --version
         Display jgtr version.`
 
-const versionStr = `0.5.0`
+const versionStr = `0.6.0`
 
 func main() {
 	help := flag.BoolP("help", "h", false, "show help")

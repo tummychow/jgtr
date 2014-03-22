@@ -106,3 +106,73 @@ These are aliases for some Go standard functions from the [`strings`](http://gol
 ## stringUpper, stringLower and stringTitle
 
 Some more standard aliases: [`ToUpper`](http://golang.org/pkg/strings/#ToUpper), [`ToLower`](http://golang.org/pkg/strings/#ToLower) and [`ToTitle`](http://golang.org/pkg/strings/#ToTitle). They transform strings into other cases.
+
+## sliceSort
+
+`sliceSort` is a function you can use to sort lists of data in ascending order. Sorting is supported on homogeneous lists of floats, ints or strings. You cannot sort a list of maps or lists. The original list is not modified by the sorting operation, and can still be retrieved in its original order. Here's an example:
+
+```JSON
+{
+    "arr": ["foo", "bar", "baz"]
+}
+```
+
+```
+I have {{ sliceSort .arr }}!
+Wait, what was their original order? Oh right, it was {{ .arr }}.
+```
+
+```
+I have [bar baz foo]!
+Wait, what was their original order? Oh right, it was [foo bar baz].
+```
+
+You cannot sort heterogeneous lists - ie lists where items are not all the same type. TOML doesn't allow these in the first place (data types cannot be mixed in a TOML array), but JSON and YAML allow them. There's nothing wrong with using heterogeneous lists in general, but if you `sliceSort` one, you will get a delightful runtime panic. For example, if you use this JSON file as the data for the above example, jgtr will crash, because you're trying to sort a list containing a string and a float, and that obviously makes no sense.
+
+```JSON
+{
+    "arr": ["foo", 3, 12]
+}
+```
+
+One particularly thorny point you should be aware of: all JSON numbers are treated as floats, but YAML numbers make a distinction between ints and floats. This is due to the design of the [`encoding/json`](http://golang.org/pkg/encoding/json/) and [`gopkg.in/v1/yaml`](http://github.com/go-yaml/yaml) packages, which jgtr uses to unmarshal JSON and YAML. Therefore, the following JSON array is sortable:
+
+```JSON
+{ "arr": [ 3, 12.0, 4.1 ] }
+```
+
+But this seemingly identical YAML array is **not** sortable:
+
+```YAML
+arr:
+ - 3
+ - 12.0
+ - 4.1
+```
+
+The `3` gets decoded to an integer, where as the `12.0` and the `4.1` get decoded to floats. These types cannot be compared directly in Go (int does not silently promote to float - which is a good thing), so they cannot be sorted. I may include a future improvement to resolve this edge case, but for now, you should assume it doesn't work. Use `3.0` instead of `3` in the above YAML example, and you'll be fine.
+
+## sliceReverse
+
+`sliceReverse` is a function to invert the order of a list. Like `sliceSort`, it does not modify the original list, so the unreversed order is still accessible. If you need to sort a list in descending order, you can `sliceSort` it and then `sliceReverse` the result. Here are some examples:
+
+```JSON
+{
+    "arr1": ["foo", 3, "x"],
+    "arr2": [3, 1, 2]
+}
+```
+
+```
+Let's reverse an array! {{ sliceReverse .arr1 }}
+The original array is unchanged: {{ .arr1 }}
+Let's sort an array in reverse order! {{ sliceSort .arr2 | sliceReverse }}
+```
+
+```
+Let's reverse an array! [x 3 foo]
+The original array is unchanged: [foo 3 x]
+Let's sort an array in reverse order! [3 2 1]
+```
+
+Note that you can reverse any list, even if it's heterogeneous (as shown by the example above with `arr1`). `sliceReverse` does not care about the contents of the list. Any list, no matter what it contains, can be flipped around.
