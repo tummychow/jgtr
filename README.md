@@ -71,9 +71,9 @@ You can use certain Go functions in your templates. More details on jgtr's use o
 
 ## Todo
 
- - add more functions from the Go standard packages. I'm mostly adding as I encounter use cases for them, so feel free to submit issues/pull requests for any that you need.
- - Can't think of any more data formats to add, but open an issue/pull request if you got one. To make life easier for me, it should have a parsing package written in Go (provide a link), which can unmarshal the data into an `interface{}` using the analogous Go types. Take a look at [`data.go`](data.go) to see how the existing formats are handled. If your format can be added in the same way, it's easy enough that I'll actually do it.
  - add a flag to switch to `html/template` for security and proper escaping. I don't personally care much about this use case, but it should be a straightforward addition if I feel like it.
+
+If there's stuff you want to add to jgtr (particularly new data formats or functions), you might want to check out [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
