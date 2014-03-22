@@ -69,9 +69,7 @@ type GenericSlice []interface{}
 // the two elements are not comparable (ie their types do not match, or they do
 // not have a natural ordering), then Less will panic.
 func (p GenericSlice) Less(i, j int) bool {
-	leftV := reflect.ValueOf(p[i])
-	rightV := reflect.ValueOf(p[j])
-	return valueLt(leftV, rightV)
+	return valueLt(reflect.ValueOf(p[i]), reflect.ValueOf(p[j]))
 }
 
 func (p GenericSlice) Len() int      { return len(p) }
