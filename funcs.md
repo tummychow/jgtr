@@ -152,6 +152,73 @@ arr:
 
 The `3` gets decoded to an integer, where as the `12.0` and the `4.1` get decoded to floats. These types cannot be compared directly in Go (int does not silently promote to float - which is a good thing), so they cannot be sorted. I may include a future improvement to resolve this edge case, but for now, you should assume it doesn't work. Use `3.0` instead of `3` in the above YAML example, and you'll be fine.
 
+## sliceSortKey
+
+`sliceSortKey` is a sorting function for lists of maps. It is useful in any situation where you need to impose an ordering on a complicated data structure. It takes a list (every element of the list must be a map) and a string. The string indicates a key in the maps, upon which you want to sort them. The list will be sorted based on the relative ordering of the value corresponding to that key in each map. This sort is stable (which is an important feature in this use case), and does not modify the original list. Maybe that description is a bit confusing... here's an example.
+
+```JSON
+[
+    {
+        "weight": 1,
+        "name": "bar"
+    },
+    {
+        "weight": 2,
+        "name": "baz"
+    },
+    {
+        "weight": 2,
+        "name": "baz0"
+    },
+    {
+        "name": "foo"
+    },
+    {
+        "weight": -1,
+        "name": "qux"
+    }
+]
+```
+
+```
+{{ range sliceSortKey . "weight" }}This item has weight {{ .weight }} and its name is {{ .name }}
+{{ end }}
+```
+
+Here we have a simple JSON array of objects. The `name` key represents various metadata that are associated with the objects, and the `weight` key indicates how we want to sort them. Note that one of the objects in the list does not specify the `weight` key at all. There are also two objects with the same `weight` key. As you will see, `sliceSortKey` handles these cases in a safe and predictable manner. If we render this template using jgtr, here is the output:
+
+```
+This item has weight <no value> and its name is foo
+This item has weight -1 and its name is qux
+This item has weight 1 and its name is bar
+This item has weight 2 and its name is baz
+This item has weight 2 and its name is baz0
+
+```
+
+As you can see, the items are sorted by their `weight` key. The sort is stable, so `baz` and `baz0` were not swapped. Elements that do not specify the key being sorted, such as `foo`, will be placed first. Basically, if an object doesn't specify the sort key, it is considered to be "less than" any element that does have the sort key, so it will end up at the front of the list.
+
+Like `sliceSort`, `sliceSortKey` requires that the types of the key being sorted are homogeneous, and all the same pitfalls apply. The maps in the list must all have the same type of value, for the key you are sorting. That value can be a string, or an int, or a float (just like `sliceSort`). This list, for example, can be sorted on the `weight` key (because the `weight`s are all floats), but not on the `name` key (because some of the `name`s are strings and others are floats).
+
+```JSON
+[
+    {
+        "weight": 1,
+        "name": "bar"
+    },
+    {
+        "weight": 2,
+        "name": 3
+    },
+    {
+        "weight": 2,
+        "name": "baz0"
+    }
+]
+```
+
+As an aside, anyone interested in Go programming should take a look at the implementation of `MapSlice.Less` in `funcs.go`. `sliceSortKey` is based on that function. It's a great exercise in reflection and indirection. I found writing the function to be very intellectually stimulating.
+
 ## sliceReverse
 
 `sliceReverse` is a function to invert the order of a list. Like `sliceSort`, it does not modify the original list, so the unreversed order is still accessible. If you need to sort a list in descending order, you can `sliceSort` it and then `sliceReverse` the result. Here are some examples:
