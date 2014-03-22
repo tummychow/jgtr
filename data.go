@@ -17,8 +17,7 @@ func loadJSONData(path string) (ret interface{}, err error) {
 	}
 	defer closeStream(file)
 
-	decoder := json.NewDecoder(file)
-	err = decoder.Decode(&ret)
+	err = json.NewDecoder(file).Decode(&ret)
 	return // whether err==nil or not, our work is done
 }
 
