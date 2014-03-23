@@ -53,7 +53,7 @@ OPTIONS:
     -V, --version
         Display jgtr version.`
 
-const versionStr = `0.7.0`
+const versionStr = `0.7.1`
 
 func main() {
 	help := flag.BoolP("help", "h", false, "show help")
@@ -80,6 +80,13 @@ func main() {
 
 	if *dataPath == "-" && *tmplPath == "-" {
 		println("Cannot use stdin for data and template simultaneously")
+		os.Exit(1)
+	}
+
+	if (*jsonFlag && *yamlFlag) ||
+		(*jsonFlag && *tomlFlag) ||
+		(*yamlFlag && *tomlFlag) {
+		println("Cannot select multiple data formats simultaneously")
 		os.Exit(1)
 	}
 
