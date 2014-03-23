@@ -83,19 +83,24 @@ func main() {
 		os.Exit(1)
 	}
 
+	// no flag set - check extensions
+	if !(*jsonFlag || *yamlFlag || *tomlFlag) {
+		if strings.HasSuffix(*dataPath, ".yaml") || strings.HasSuffix(*dataPath, ".yml") {
+			flag.Set("yaml", "true")
+		} else if strings.HasSuffix(*dataPath, ".toml") {
+			flag.Set("toml", "true")
+		} else {
+			flag.Set("json", "true")
+		}
+	}
+
 	var data interface{} = nil
 	var err error = nil
-	if *yamlFlag { // check the flags first
+	if *yamlFlag {
 		data, err = loadYAMLData(*dataPath)
 	} else if *tomlFlag {
 		data, err = loadTOMLData(*dataPath)
-	} else if *jsonFlag {
-		data, err = loadJSONData(*dataPath)
-	} else if strings.HasSuffix(*dataPath, ".yaml") || strings.HasSuffix(*dataPath, ".yml") { // no flag? check the extension
-		data, err = loadYAMLData(*dataPath)
-	} else if strings.HasSuffix(*dataPath, ".toml") {
-		data, err = loadTOMLData(*dataPath)
-	} else { // default case: json
+	} else {
 		data, err = loadJSONData(*dataPath)
 	}
 	if err != nil {
