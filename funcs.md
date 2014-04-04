@@ -135,7 +135,7 @@ You cannot sort heterogeneous lists - ie lists where items are not all the same 
 }
 ```
 
-One particularly thorny point you should be aware of: all JSON numbers are treated as floats, but YAML numbers make a distinction between ints and floats. This is due to the design of the [`encoding/json`](http://golang.org/pkg/encoding/json/) and [`gopkg.in/v1/yaml`](http://github.com/go-yaml/yaml) packages, which jgtr uses to unmarshal JSON and YAML. Therefore, the following JSON array is sortable:
+One particularly thorny point you should be aware of: all JSON numbers are treated as floats, but YAML numbers make a distinction between ints and floats. This is due to the design of the [`encoding/json`](http://golang.org/pkg/encoding/json/) and [`gopkg.in/yaml.v1`](http://github.com/go-yaml/yaml) packages, which jgtr uses to unmarshal JSON and YAML. Therefore, the following JSON array is sortable:
 
 ```JSON
 { "arr": [ 3, 12.0, 4.1 ] }

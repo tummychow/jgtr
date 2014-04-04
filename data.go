@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"github.com/BurntSushi/toml"
-	"gopkg.in/v1/yaml"
+	"gopkg.in/yaml.v1"
 	"io/ioutil"
 )
 
